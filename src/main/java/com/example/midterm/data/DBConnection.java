@@ -66,4 +66,20 @@ public class DBConnection {
             throw new RuntimeException(e);
         }
     }
+    public void deleteAll(){
+        String sql = "DELETE FROM manage";
+        System.out.println(sql);
+        try {
+            con.prepareStatement(sql).executeUpdate();
+            System.out.println("Deleted all purpose");
+        } catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+        sql = "ALTER TABLE manage AUTO_INCREMENT=1";
+        try {
+            con.prepareStatement(sql).executeUpdate();
+        } catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
 }

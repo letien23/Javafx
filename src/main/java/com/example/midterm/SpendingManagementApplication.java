@@ -3,7 +3,9 @@ package com.example.midterm;
 import com.example.midterm.data.DBConnection;
 import com.example.midterm.data.models.Purpose;
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -15,21 +17,37 @@ import java.util.ArrayList;
 
 public class SpendingManagementApplication extends Application {
     Stage window;
-    Scene scene1;
+    Scene admin,login;
+    VBox layoutAdmin, layoutLogin;
     final DBConnection con = new DBConnection();
     @Override
     public void start(Stage stage){
 
         window = stage;
-        VBox layout1 = new VBox();
-        addPurpose(layout1,null);
-        showPurpose(layout1);
-        scene1 = new Scene(layout1, 500, 500);
-        window.setScene(scene1);
+        layoutAdmin = new VBox();
+        layoutLogin = new VBox();
+        admin = new Scene(layoutAdmin, 1000, 1000);
+        login = new Scene(layoutLogin, 500,  600);
+        showLogin();
+        window.setScene(login);
         window.show();
     }
-    void showPurpose(VBox vBox){
+
+    // Hàm dùng hiển thị list các danh mục
+    void showPurpose(){
         ArrayList<com.example.midterm.data.models.Purpose> purList = con.getPurpose();
+        Button btnDell = new Button("Delete all");
+        btnDell.setOnAction(event -> {
+            con.deleteAll();
+            layoutAdmin.getChildren().clear();
+            addPurpose(null);
+            showPurpose();
+            window.setScene(admin);
+            window.show();
+        });
+        HBox hbBtnDell = new HBox();
+        hbBtnDell.getChildren().addAll(btnDell);
+        layoutAdmin.getChildren().add(hbBtnDell);
         System.out.println("Size: "+ purList.size());
         for(int i = 0 ; i < purList.size(); i++){
             HBox hBoxPurpose = new HBox();
@@ -42,24 +60,34 @@ public class SpendingManagementApplication extends Application {
             Button btnDelete = new Button("Delete");
             btnDelete.setOnAction(actionEvent -> {
                 con.deletePurpose(purList.get(index).id);
-                try {
-                    start(window);
-                } catch (Exception ex) {
-                    throw new RuntimeException(ex);
-                }
+                layoutAdmin.getChildren().clear();
+                addPurpose(null);
+                showPurpose();
+                window.setScene(admin);
+                window.show();
             });
             Button btnUpdate = new Button("Update");
             btnUpdate.setOnAction(actionEvent -> {
-                addPurpose(vBox,purList.get(index));
+                addPurpose(purList.get(index));
             });
+
             hBoxPurpose.getChildren().addAll(lbId, lbName, lbCost,lbDate,btnUpdate,btnDelete);
-            vBox.getChildren().add(hBoxPurpose);
+            layoutAdmin.getChildren().add(hBoxPurpose);
         }
+
     }
-    void addPurpose(VBox vBox, Purpose pur){
+
+    //Hàm dùng để hiển thị form thêm và sửa danh mục
+    void addPurpose( Purpose pur){
         if(pur != null){
-            vBox.getChildren().clear();
+            layoutAdmin.getChildren().clear();
         }
+        Button btnLogout = new Button("Log out");
+        btnLogout.setOnAction(event -> {
+            showLogin();
+            window.setScene(login);
+            window.show();
+        });
         Label lbPur = new Label("Purpose:");
         Label lbCos = new Label("Cost:");
         Label lbDa = new Label("Date:");
@@ -76,14 +104,15 @@ public class SpendingManagementApplication extends Application {
             }else{
                 pur.purpose = inputPur.getText();
                 pur.cost= Float.parseFloat(inputCost.getText());
-               pur.date = inputDate.getText();
+                pur.date = inputDate.getText();
                 con.updatePurpose(pur);
             }
-            try {
-                start(window);
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
+            layoutAdmin.getChildren().clear();
+            addPurpose(null);
+            showPurpose();
+            window.setScene(admin);
+            window.show();
+
         });
         HBox fieldPur = new HBox();
         fieldPur.getChildren().addAll(lbPur,inputPur);
@@ -91,10 +120,51 @@ public class SpendingManagementApplication extends Application {
         fieldCos.getChildren().addAll(lbCos,inputCost);
         HBox fieldDa = new HBox();
         fieldDa.getChildren().addAll( lbDa, inputDate);
-        vBox.getChildren().addAll(fieldPur,fieldCos,fieldDa,btnSave);
+        layoutAdmin.getChildren().addAll(btnLogout,fieldPur,fieldCos,fieldDa,btnSave);
     }
 
+    //Hàm hiển thị phần login
+    void  showLogin(){
+        layoutLogin.getChildren().clear();
+        Label labelLogin =new Label("LOGIN");
+        Label lbName = new Label("Name: ");
+        Label lbPass = new Label("Password: ");
+        TextField name = new TextField();
+        TextField pass = new TextField();
+        HBox fieldName = new HBox();
+        fieldName.getChildren().addAll(lbName,name);
+        fieldName.setSpacing(10);
+        fieldName.setAlignment(Pos.BASELINE_CENTER);
+        HBox fieldPass = new HBox();
+        fieldPass.getChildren().addAll(lbPass,pass);
+        fieldPass.setSpacing(10);
+        fieldPass.setAlignment(Pos.BASELINE_CENTER);
 
+        Button btnLogin = new Button("LOGIN");
+        btnLogin.setOnAction(actionEvent -> {
+            String na = name.getText();
+            String pa = pass.getText();
+            if( na.equals("tien") && pa.equals("123")){
+                layoutAdmin.getChildren().clear();
+                addPurpose(null);
+                showPurpose();
+                window.setScene(admin);
+                window.show();
+            }else{
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("ERROR");
+                alert.setContentText("Name or Password was wrong");
+                alert.show();
+            }
+        });
+        HBox btnLoginPage = new HBox();
+        btnLoginPage.getChildren().addAll(btnLogin);
+        btnLoginPage.setSpacing(10);
+        btnLoginPage.setAlignment(Pos.BASELINE_CENTER);
+        layoutLogin.getChildren().addAll(labelLogin,fieldName,fieldPass,btnLoginPage);
+        layoutLogin.setSpacing(15);
+        layoutLogin.setAlignment(Pos.BASELINE_CENTER);
+    }
     public static void main(String[] args) {
         launch();
     }
