@@ -5,10 +5,7 @@ import com.example.midterm.data.models.Purpose;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -26,8 +23,8 @@ public class SpendingManagementApplication extends Application {
         window = stage;
         layoutAdmin = new VBox();
         layoutLogin = new VBox();
-        admin = new Scene(layoutAdmin, 1000, 1000);
-        login = new Scene(layoutLogin, 500,  600);
+        admin = new Scene(layoutAdmin, 800, 800);
+        login = new Scene(layoutLogin, 300,  300);
         showLogin();
         window.setScene(login);
         window.show();
@@ -49,6 +46,15 @@ public class SpendingManagementApplication extends Application {
         hbBtnDell.getChildren().addAll(btnDell);
         layoutAdmin.getChildren().add(hbBtnDell);
         System.out.println("Size: "+ purList.size());
+        Label idTitle = new Label("Stt     ");
+        Label nameTitle = new Label("Mục đích           ");
+        Label costTitle = new Label("Chi tiêu        ");
+        Label dateTitle = new Label("Ngày ");
+        HBox hbTitle = new HBox();
+        hbTitle.getChildren().addAll(idTitle,nameTitle,costTitle,dateTitle);
+        layoutAdmin.getChildren().add(hbTitle);
+
+        float sum = 0;
         for(int i = 0 ; i < purList.size(); i++){
             HBox hBoxPurpose = new HBox();
             hBoxPurpose.setSpacing(20);
@@ -56,6 +62,7 @@ public class SpendingManagementApplication extends Application {
             Label lbName = new Label(""+purList.get(i).purpose);
             Label lbCost = new Label(""+purList.get(i).cost);
             Label lbDate = new Label(""+purList.get(i).date);
+            sum = sum + purList.get(i).cost;
             int index = i;
             Button btnDelete = new Button("Delete");
             btnDelete.setOnAction(actionEvent -> {
@@ -74,6 +81,10 @@ public class SpendingManagementApplication extends Application {
             hBoxPurpose.getChildren().addAll(lbId, lbName, lbCost,lbDate,btnUpdate,btnDelete);
             layoutAdmin.getChildren().add(hBoxPurpose);
         }
+        Label lbSum = new Label("Tổng tiền đã dùng là: "+sum);
+        HBox hbSum = new HBox();
+        hbSum.getChildren().addAll(lbSum);
+        layoutAdmin.getChildren().add(hbSum);
 
     }
 
@@ -89,8 +100,8 @@ public class SpendingManagementApplication extends Application {
             window.show();
         });
         Label lbPur = new Label("Purpose:");
-        Label lbCos = new Label("Cost:");
-        Label lbDa = new Label("Date:");
+        Label lbCos = new Label("Cost:      ");
+        Label lbDa = new Label("Date:      ");
         TextField inputPur = new TextField(pur == null? "":pur.purpose);
         TextField inputCost = new TextField(pur == null? "": String.valueOf(pur.cost));
         TextField inputDate = new TextField(pur == null? "":pur.date);
@@ -130,7 +141,7 @@ public class SpendingManagementApplication extends Application {
         Label lbName = new Label("Name: ");
         Label lbPass = new Label("Password: ");
         TextField name = new TextField();
-        TextField pass = new TextField();
+        PasswordField pass = new PasswordField();
         HBox fieldName = new HBox();
         fieldName.getChildren().addAll(lbName,name);
         fieldName.setSpacing(10);
@@ -152,6 +163,8 @@ public class SpendingManagementApplication extends Application {
                 window.show();
             }else{
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                name.setText("");
+                pass.setText("");
                 alert.setTitle("ERROR");
                 alert.setContentText("Name or Password was wrong");
                 alert.show();
